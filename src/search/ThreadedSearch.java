@@ -54,7 +54,7 @@ public class ThreadedSearch<T> implements Searcher<T>, Runnable {
 
         Thread[] threads = new Thread[numThreads];
         for (int i = 0; i < numThreads; i++) {
-            ThreadedSearch<T> threadedSearch = new ThreadedSearch<T>(target, list, (list.size() * i / numThreads), (list.size() * (i + 1) / numThreads), sharedAnswer);
+            ThreadedSearch<T> threadedSearch = new ThreadedSearch<>(target, list, (list.size() * i) / numThreads, (list.size() * (i + 1)) / numThreads, sharedAnswer);
             threads[i] = new Thread(threadedSearch);
             threads[i].start();
         }
@@ -69,13 +69,15 @@ public class ThreadedSearch<T> implements Searcher<T>, Runnable {
         // Delete this `throw` when you actually implement this method.
         //throw new UnsupportedOperationException();
 
-        //int i = this.begin;
-        for(int i = this.begin; i <= this.end && !this.answer.getAnswer(); i ++) {
-            for(T item: list) {
-                if(item.equals(target)) {
+        for(int i = begin; i < end; i++) {
+            // check if the target is already found
+            if(answer.getAnswer()) {
+                break;
+            }
+            // set answer to true once find the target
+            if(list.get(i).equals(target)) {
                     this.answer.setAnswer(true);
                     break;
-                }
             }
         }
     }
