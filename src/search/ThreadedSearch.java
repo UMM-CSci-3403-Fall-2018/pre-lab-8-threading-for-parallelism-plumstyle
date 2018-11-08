@@ -1,5 +1,6 @@
 package search;
 
+import javax.swing.*;
 import java.util.List;
 
 public class ThreadedSearch<T> implements Searcher<T>, Runnable {
@@ -49,12 +50,34 @@ public class ThreadedSearch<T> implements Searcher<T>, Runnable {
          * threads, wait for them to all terminate, and then return the answer
          * in the shared `Answer` instance.
          */
-        return false;
+        Answer sharedAnswer = new Answer();
+
+        Thread[] threads = new Thread[numThreads];
+        for (int i = 0; i < numThreads; i++) {
+            ThreadedSearch<T> threadedSearch = new ThreadedSearch<T>(target, list, (list.size() * i / numThreads), (list.size() * (i + 1) / numThreads), sharedAnswer);
+            threads[i] = new Thread(threadedSearch);
+            threads[i].start();
+        }
+
+        for (int i = 0; i < numThreads; i++) {
+            threads[i].join();
+        }
+        return sharedAnswer.getAnswer();
     }
 
     public void run() {
         // Delete this `throw` when you actually implement this method.
-        throw new UnsupportedOperationException();
+        //throw new UnsupportedOperationException();
+
+        //int i = this.begin;
+        for(int i = this.begin; i <= this.end && !this.answer.getAnswer(); i ++) {
+            for(T item: list) {
+                if(item.equals(target)) {
+                    this.answer.setAnswer(true);
+                    break;
+                }
+            }
+        }
     }
 
     private class Answer {
